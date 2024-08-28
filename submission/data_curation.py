@@ -1,7 +1,7 @@
 """
 This script is used to curate the data for the project. 
 
-Implement your functions to to clean the data and prepare it for model training.
+Implement your functions to clean the data and prepare it for model training.
 
 Note: the competition requires that you use FiftyOne for data curation and you are only allowed to
 use the approaved dataset from the hub, Voxel51/Data-Centric-Visual-AI-Challenge-Train-Set, which can 
@@ -54,7 +54,7 @@ def prepare_dataset(name):
     
     # Implement your data curation functions here
     dataset = shuffle_data(dataset)
-    dataset = take_random_sample(dataset)
+    #dataset = take_random_sample(dataset)
     
     # Return the curated dataset
     curated_dataset = dataset.clone() 

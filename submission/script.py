@@ -137,6 +137,7 @@ def run():
     Returns:
         None
     """
+    #os.environ["FIFTYONE_DATABASE_DIR"] = "dataset"
     os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
     script_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(script_dir, 'training_config.yaml')
@@ -150,6 +151,7 @@ def run():
     public_eval_dataset = fouh.load_from_hub("Voxel51/DCVAI-Challenge-Public-Eval-Set")
 
     N = len(curated_train_dataset)
+    print(N)
     
     best_trained_model = train_model(training_dataset=curated_train_dataset, training_config=training_config)
     

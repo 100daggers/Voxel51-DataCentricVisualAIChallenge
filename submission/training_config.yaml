@@ -1,11 +1,134 @@
-# Dataset split
-train_split: 0.9
-val_split: 0.1
+nc: 43  # number of classes
+depth_multiple: 0.67  # model depth multiple
+width_multiple: 0.75  # layer channel multiple
 
-# Training parameters
+# Class names
+names:
+  - Airplane
+  - Ambulance
+  - Ball
+  - Balloon
+  - Bicycle
+  - Boot
+  - Boy
+  - Bus
+  - Car
+  - Computer monitor
+  - Corded phone
+  - Football
+  - Footwear
+  - Girl
+  - Glasses
+  - Golf ball
+  - Hamburger
+  - Helicopter
+  - High heels
+  - Hot dog
+  - Jeans
+  - Kite
+  - Laptop
+  - Man
+  - Mobile phone
+  - Motorcycle
+  - Rugby ball
+  - Sandal
+  - Sandwich
+  - Shorts
+  - Submarine sandwich
+  - Sunglasses
+  - Table tennis racket
+  - Taxi
+  - Television
+  - Tennis ball
+  - Tennis racket
+  - Trousers
+  - Truck
+  - Unicycle
+  - Van
+  - Volleyball (Ball)
+  - Woman
+
+backbone:
+  - [-1, 1, 'Conv', [64, 3, 2]]  # P1/2
+  - [-1, 1, 'Conv', [128, 3, 2]]  # P2/4
+  - [-1, 3, 'C2f', [128, True]]   # P3/8
+  - [-1, 1, 'Conv', [256, 3, 2]]  # P4/16
+  - [-1, 6, 'C2f', [256, True]]   # P5/32
+  - [-1, 1, 'Conv', [512, 3, 2]]  # P6/64
+  - [-1, 6, 'C2f', [512, True]]   # P7/128
+  - [-1, 1, 'Conv', [768, 3, 2]]  # P8/256
+  - [-1, 3, 'C2f', [768, True]]   # P9/512
+  - [-1, 1, 'SPPF', [768, 5]]     # P10/1024
+
+head:
+  - [-1, 1, 'nn.Upsample', ['None', 2, 'nearest']]   # P11/2048
+  - [[-1, 6], 1, 'Concat', [1]]                     # P12/4096
+  - [-1, 3, 'C2f', [512]]                           # P13/8192
+  - [-1, 1, 'nn.Upsample', ['None', 2, 'nearest']]  # P14/16384
+  - [[-1, 4], 1, 'Concat', [1]]                     # P15/32768
+  - [-1, 3, 'C2f', [256]]                           # P16/65536
+  - [-1, 1, 'Conv', [256, 3, 2]]                    # P17/131072
+  - [[-1, 12], 1, 'Concat', [1]]                    # P18/262144
+  - [-1, 3, 'C2f', [512]]                           # P19/524288
+  - [-1, 1, 'Conv', [512, 3, 2]]                    # P20/1048576
+  - [[-1, 9], 1, 'Concat', [1]]                     # P21/2097152
+  - [-1, 3, 'C2f', [768]]                           # P22/4194304
+  - [[15, 18, 21], 1, 'Detect', ['nc']]             # Detection head
+
+ch: 3  # Input channels (e.g., 3 for RGB images)
+
+# Training hyperparameters
 train_params:
-  epochs: 50
-  batch: 16
-  imgsz: 640
-  lr0: 0.01
-  lrf: 0.01
+  epochs: 50           # Number of training epochs
+  batch: 16            # Batch size
+  imgsz: 640           # Image size (width and height)
+  lr0: 0.001            # Initial learning rate
+  lrf: 0.00001            # Final learning rate (learning rate scheduler)
+  momentum: 0.937      # SGD momentum
+  weight_decay: 0.001 # Weight decay
+  optimizer: SGD       # Optimizer (SGD or Adam)
+  patience: 50         # Early stopping patience (epochs)
+
+train_split: 90  # Percentage of the dataset used for training
+val_split: 10    # Percentage of the dataset used for validation
+
+# Data loading settings
+data:
+  train_split: 0.9  # Percentage of the dataset used for training
+  val_split: 0.1    # Percentage of the dataset used for validation
+  workers: 8        # Number of data loading workers (threads)
+  shuffle: True     # Shuffle the dataset during training
+  augment:          # Data augmentation settings
+    flipud: 0.5     # Vertical flip probability
+    fliplr: 0.5     # Horizontal flip probability
+    hsv_h: 0.015    # HSV hue augmentation (fraction)
+    hsv_s: 0.7      # HSV saturation augmentation (fraction)
+    hsv_v: 0.4      # HSV value augmentation (fraction)
+
+# Other relevant configurations
+save_period: 2     # Save checkpoint every n epochs
+save_best_only: True # Save only the best model
+project_name: "YOLOv8_training" # Name of the project/directory for saving results
+device: 0          # GPU device to use (set to 'cpu' if training on CPU)
+
+# Evaluation settings
+eval:
+  interval: 1       # Evaluate the model every n epochs
+  save_results: True # Save evaluation results (precision, recall, mAP, etc.)
+
+# Logging and visualization
+logging:
+  tensorboard: True # Use TensorBoard for logging
+  log_dir: "runs/train" # Directory to save logs
+  log_interval: 1   # Log every n batches
+
+## Checkpoints and resume training
+#checkpoint:
+#  resume: False      # Whether to resume training from a checkpoint
+#  checkpoint_path: "path/to/checkpoint.pt" # Path to the checkpoint file if resume is True
+
+
+## Advanced settings (optional)
+#advanced:
+#  mixed_precision: True # Use mixed precision for faster training
+#  gradient_accumulation: 2 # Number of batches to accumulate gradients
